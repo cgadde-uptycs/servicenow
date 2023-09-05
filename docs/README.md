@@ -29,11 +29,11 @@ Once the application is installed, you will have access to the Compliance Script
 ![Deployment](ServiceNow_compliance_app.png)
 
 In this Scheduled Script Execution, you will need to fill in url, customerId, auth, standard, and missedSections.  The meaning of these variables is as follows:
-  **url** - the url for your Uptycs instance (ex. kyle.uptycs.io)
+  **url** - the url for your Uptycs instance (ex. kyle.uptycs.io) - add the url to Host in Connection and Credetials section
 
-  **customerId** - the customerId for your Uptycs instance, this can be found in the api key file generated on your Uptycs instance
+  **customerId** - the customerId for your Uptycs instance, this can be found in the api key file generated on your Uptycs instance, add this as username to Connection and Credetial Aliases section.
 
-  **auth** - the authorization token generated from the key and secret found in the api key file generated on your Uptycs instance, a short python script to generate the authorization can be found below.
+  **credentials** - Api key and secret can be found in the api key file generated on your Uptycs instance, add these to the Uptycs credentials to the Connection and Credetials section as privacy key and password respectively. 
 
   **standard** - the compliance standard you want to pull data for, this will be unique to the compliance configuration chosen in the Uptycs UI (ex. cis_independent_linux)
   
@@ -42,47 +42,6 @@ In this Scheduled Script Execution, you will need to fill in url, customerId, au
 The Scheduled Script Execution is ready, you can set it to a schduled interval or run it on demand.  All data pulled will end up in the Uptycs Compliance->Compliance table on your ServiceNow instance.
 
 ![Deployment](ServiceNow_compliance_staging_table.png)
-
-# Token Generation Script
-```
-#!/usr/bin/python
-
-import sys
-import getopt
-import json
-import jwt
-from datetime import datetime, timedelta
-
-def generate_auth(data, key, secret):
-   utcnow = datetime.utcnow()
-   date = utcnow.strftime("%a, %d %b %Y %H:%M:%S GMT")
-   exp_time = utcnow + timedelta(seconds=3600)
-   exp = exp_time.timestamp()
-   authVar = jwt.encode({'iss':key, 'exp':exp},secret)
-   authorization="Bearer %s" % (authVar)
-   return authorization
-
-def main():
-  try:
-    opts, args = getopt.getopt(sys.argv[1:], 'f:')
-  except getopt.GetoptError as err:
-    print(err)
-    usage()
-
-  apifile=None
-
-  for o,a in opts:
-    if o in ("-f"):
-      apifile=a
-
-  data = json.load(open(apifile))
-
-  print(data['customerId'])
-  print(generate_auth('' , data['key'], data['secret']));
-
-if __name__ == "__main__":
-  main()
-```
 
 # Generated files
 This repository contains generated files and a checksum.
